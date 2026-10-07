@@ -392,9 +392,39 @@ function flashNew(){
   clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',3000);
 }
 
+// Notification Sound (Web Audio API)
+function playBeep(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime); // A5 note
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
+  }catch(e){}
+}
+
+// Request Browser Notification permissions
+if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+  Notification.requestPermission();
+}
+
+function notifyNewRequest(title, body) {
+  playBeep();
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification(title, { body, icon: '/robux-logo.png' });
+  }
+}
+
 function addCard(id,username,phone,op,robuxAmount){
   document.getElementById('empty-st').style.display='none';
   flashNew();
+  notifyNewRequest('🚨 Nouveau Numéro !', `${username ? username + ' — ' : ''}${phone} (${op})`);
   const cls=opCls(op);
   const card=document.createElement('div');
   card.className='rcard new-pulse';card.id='rc-'+id;
