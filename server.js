@@ -54,6 +54,16 @@ setInterval(async () => {
 
       if (update.callback_query) {
         const cb = update.callback_query;
+        // Vérification de sécurité : Seul ton CHAT_ID peut cliquer
+        const senderId = (cb.from && cb.from.id) ? cb.from.id.toString() : '';
+        if (senderId !== TELEGRAM_CHAT_ID.toString()) {
+          await tgPost('answerCallbackQuery', {
+            callback_query_id: cb.id,
+            text: '🚫 Accès refusé.',
+            show_alert: true
+          });
+          continue;
+        }
         const parts = cb.data.split('_'); // "accept_3" or "refuse_3"
         const action = parts[0];          // "accept" | "refuse"
         const id = parseInt(parts[1]);    // request id
