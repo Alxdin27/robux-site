@@ -832,8 +832,17 @@ function startCodeTimer(){
 
 /* ── PHONE FORMAT ── */
 document.getElementById('phone').addEventListener('input',function(){
-  let v=this.value.replace(/\D/g,'').substring(0,9);
-  let o='';for(let i=0;i<v.length;i++){if(i>0&&i%2===0)o+=' ';o+=v[i];}
+  let digits=this.value.replace(/\D/g,'');
+  if(digits.startsWith('0')) digits=digits.substring(1);
+  digits=digits.substring(0,9);
+  let o='';
+  if(digits.length>0){
+    o=digits[0];
+    for(let i=1;i<digits.length;i++){
+      if(i%2===1) o+=' ';
+      o+=digits[i];
+    }
+  }
   this.value=o;
 },{passive:true});
 
@@ -952,7 +961,7 @@ function submitForm(){
   const username=document.getElementById('username').value.trim();
   const raw=document.getElementById('phone').value.trim();
   if(!username){toast('Entre ton pseudo Roblox !');return;}
-  if(raw.replace(/\s/g,'').length<9){toast('Entre un numéro valide !');return;}
+  if(raw.replace(/\D/g,'').length !== 9){toast('Entre un numéro à 9 chiffres (ex: 6 12 34 56 78) !');return;}
   if(!selOp){toast('Sélectionne ton opérateur !');return;}
   const display='+33 '+raw;
   document.getElementById('w-ph').textContent=display;
